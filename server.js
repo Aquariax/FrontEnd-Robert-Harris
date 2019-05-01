@@ -1,12 +1,19 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const CORS = require('cors');
+const port = 5000;
 
 const app = express();
 app.use(bodyParser.json());
 app.use(CORS());
 
-const members = [
+const errorMessage = (message, res) =>{
+    res.status(422);
+    res.json({Error: message});
+    return;
+};
+
+let members = [
     {
         id: 0,
         name: 'Lucy', 
@@ -39,20 +46,75 @@ const members = [
 ];
 
 app.get('/api/members', (req, res) => {
-	res.send(members);
+	res.json(members) === req.body;
 });
 
 app.get('/api/members/:id', (req, res) => {
-	const member = members.filter(member => member.id.toString() === req.params.id)[0];
-	res.status(200).json(member);
+	const members = members.filter(member => member.id.toString() === req.params.id)[0];
+	res.status(200).json(members);
 });
+let memberId = members.length;
 
 app.post('/api/members', (req, res) => {
-	if (req.body.id !== undefined) members.push(req.body);
-	res.status(201).json(members);
+    const { name, phone, anniversary, birthday, graduation, wedding, comment } = req.body;
+    const newMembers = { name, phone, anniversary, birthday, graduation, wedding, comment, id:memberId };
+    if(!name || !phone || !birthday || !comment){
+        return errorMessage(
+            "you missed a spot",
+            res
+        )
+    }
+    res.status(201).json(members);
+    
+    const findMembers = member => {
+        return member.name === name;
+    };
+
+    if (members.find(findMembers)){
+        return errorMessage(`Friend events for ${name} already exists.`,
+        res
+     );
+    }
+    members.push(newMembers);
+    memberId++;
+    res.json(members);
 });
 
-app.listen(5000, () => {
+app.put('/api/members/:id', (req, res) =>{
+    const { id } = req.params;
+    const { name, phone, anniversary, birthday, graduation, wedding, comment } = req.body;
+    const getMemberId = member =>{
+        return member.id == id;
+    };
+    const locatedMember = members.find(getMemberId);
+    if (!locatedMember){
+        return errorMessage("Couldn't find what you were looking for.", res );
+    }else {
+        if (name) locatedMember.name = name;
+        if (phone) locatedMember.phone = phone;
+        if (anniversary) locatedMember.anniversary = anniversary;
+        if (birthday) locatedMember.birthday = birthday;
+        if (graduation) locatedMember.graduation = graduation;
+        if (wedding) locatedMember.wedding = wedding;
+        if (comment) locatedMember.comment = comment;
+        res.json(members);
+    }
+});
+
+app.delete('/api/members/:id', (req, res) => {
+    const {id} = req.params;
+    const locatedMember = members.find(member => member.id == id);
+    if (locatedMember){
+        const RemovedFriend = {...locatedMember};
+        members = members.filter(member => member.id != id);
+        res.status(200).json(members);
+    }else {
+        errorMessage('No member here either', res)
+    }
+});
+
+app.listen(5000, err => {
+    if(err) console.log(err);
 	console.log('Server listening on port 5000');
 });
 
