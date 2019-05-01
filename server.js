@@ -9,7 +9,6 @@ app.use(CORS());
 const members = [
     {
         id: 0,
-        type: "friend",
         name: 'Lucy', 
         phone: 9990042199, 
         anniversary: 'N/A', 
@@ -19,8 +18,7 @@ const members = [
         comment: 'set up a surprise party'
     },
     {
-        id: 1,
-        type: "friend",
+        id: 1, 
         name: 'Brendan',
         phone: 9968966999, 
         anniversary: 'N/A', 
@@ -31,7 +29,6 @@ const members = [
      },
     {
         id: 2,
-        type: "friend",
         name: 'Leslie', 
         phone: 4344444444, 
         anniversary: 'N/A', 
