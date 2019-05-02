@@ -53,11 +53,10 @@ app.get('/api/members/:id', (req, res) => {
 	const members = members.filter(member => member.id.toString() === req.params.id)[0];
 	res.status(200).json(members);
 });
-let memberId = members.length;
 
 app.post('/api/members', (req, res) => {
     const { name, phone, anniversary, birthday, graduation, wedding, comment } = req.body;
-    const newMembers = { name, phone, anniversary, birthday, graduation, wedding, comment, id:memberId };
+    const newMembers = { name, phone, anniversary, birthday, graduation, wedding, comment, id:Date.now() };
     if(!name || !phone || !birthday || !comment){
         return errorMessage(
             "you missed a spot",
